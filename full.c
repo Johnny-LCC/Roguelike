@@ -22,30 +22,23 @@ struct Player{
   int py;
   char c;
 };
+struct Player j={1, 100, 100, 20, 20, 10, 0, 10, 10, '@'};
+//int floor=1;
 
-
-struct Mobs{
-  int inimigo;
-  struct Mobs *prox;
-};
-
-struct State{
-  struct Casas bp[128][256];
-  struct Player j;
-  struct Mobs inimigos;
-  int floor;
-};
-State jogo;
-jogo.j={1, 100, 100, 20, 20, 10, 0, 10, 10, '@'};
+int menu(int l, int c){
+  mvprintw((l/2)-5,(c/2)-3,"TITULO");
+  mvprintw((l/2),(c/2)-3,"NOVO JOGO");
+  return 0;
+}
 
 int frame(int l, int c){
   for(int i=0; i<c; i++){
-    jogo.bp[0][i].parede=1; jogo.bp[l-1][i].parede=1;
-    jogo.bp[0][i].ocupado=0; jogo.bp[l-1][i].ocupado=0;
-    jogo.bp[0][i].c=' '; jogo.bp[l-1][i].c=' ';
-    jogo.bp[1][i].parede=1; jogo.bp[l-2][i].parede=1;
-    jogo.bp[1][i].ocupado=0; jogo.bp[l-2][i].ocupado=0;
-    jogo.bp[1][i].c='#'; bp[l-2][i].c='#';
+    bp[0][i].parede=1; bp[l-1][i].parede=1;
+    bp[0][i].ocupado=0; bp[l-1][i].ocupado=0;
+    bp[0][i].c=' '; bp[l-1][i].c=' ';
+    bp[1][i].parede=1; bp[l-2][i].parede=1;
+    bp[1][i].ocupado=0; bp[l-2][i].ocupado=0;
+    bp[1][i].c='#'; bp[l-2][i].c='#';
   }
   for(int i=1; i<l-1; i++){
     bp[i][0].parede=1; bp[i][c-1].parede=1;
@@ -138,6 +131,8 @@ int main(){
   noecho();
   curs_set(0);
   getmaxyx(stdscr, l,c);
+  menu(l,c);
+  getch();
   do{
     if(t==9){
       mapa(l,c);
