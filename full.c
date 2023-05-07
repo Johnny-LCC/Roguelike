@@ -31,8 +31,12 @@ int andar;
 
 void menu(int *l, int *c){
   int y=(*l)/2, x=(*c)/2;
-  if((*c)<70){
-    mvprintw(y-2,x-7,"THE ASCENSION");
+  if((*c)<40) mvprintw(y-2,x-7,"THE ASCENSION");
+  else if((*c)<70){
+    mvprintw(y-4,x-2, "THE");
+    mvprintw(y-3,x-20, "      __   __  __       __  .  __  ");
+    mvprintw(y-2,x-20, " /\\  |__  |   |_  |\\ | |__  | |  | |\\ |");
+    mvprintw(y-1,x-20, "/  \\  __| |__ |__ | \\|  __| | |__| | \\|");
   }
   else if((*c)<110){
     mvprintw(y-8,x-2, "THE");
