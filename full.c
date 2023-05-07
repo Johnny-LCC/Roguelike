@@ -2,7 +2,6 @@
 #include <ncurses.h>
 #include <math.h>
 #include <time.h>
-#include <string.h>
 
 /*struct Ponto{
   int y;
@@ -186,8 +185,7 @@ int action(int t){
 }
 
 int main(){
-  int t=9, l, c, aux=1;
-  int cont=0;
+  int t=9, a=53, l, c, aux=1;
   andar=1;
   initscr();
   start_color();
@@ -202,29 +200,55 @@ int main(){
   noecho();
   curs_set(0);
   getmaxyx(stdscr, l,c);
-  menu(l,c);
-  t=getch();
-  while (andar<100 && cont=0){
-    aux=andar;
-    mapa(l,c);
-    for(int i=0; i<l; i++){
-      for(int j=0; j<c; j++){
-        attron(COLOR_PAIR(bp[i][j].cor));
-        mvaddch(i,j,bp[i][j].c);
-        attroff(COLOR_PAIR(bp[i][j].cor));
-      }
+  do{
+    clear();
+    menu(l,c);
+    t=getch();
+    clear();
+    switch(t){
+      case 49:
+        while (andar<100){
+          aux=andar;
+          mapa(l,c);
+          for(int i=0; i<l; i++){
+            for(int j=0; j<c; j++){
+              attron(COLOR_PAIR(bp[i][j].cor));
+              mvaddch(i,j,bp[i][j].c);
+              attroff(COLOR_PAIR(bp[i][j].cor));
+            }
+          }
+          mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
+          mvprintw(0, c-10, "Floor %d", andar);
+          mvaddch(j.py, j.px, j.c);
+          do{
+            a=getch();
+            aux+=action(a);
+          } while (aux==andar);
+          andar++;
+        }
+        clear();
+        printw("FIM... PARABENS");
+        getch();
+        break;
+      case 50:
+        printw("Utilize o keypad para movimentar/atacar e pressione 'i' para abrir o inventário.");
+        getch();
+        break;
+      case 51:
+        printw("JOAO\nALEXIS\nPATRICIA\nANA\nLCC-LAI");
+        getch();
+        break;
+      case 27:
+        printw("TEM CERTEZA QUE DESEJA SAIR DO JOGO? (prima 'esc' novamente para sair)");
+        t=getch();
+        break;
+      default:
+        printw("Prima '1', '2', '3' ou 'esc'.");
+        getch();
+        break;
     }
-    mvaddch(j.py, j.px, j.c);
-    mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
-    mvprintw(0, c-10, "Floor %d", andar);
-    do{
-      t=getch();
-      aux+=action(t);
-    } while (aux==andar);
-    andar++;
-  }
+  } while (t!=27);
   refresh();
-  getch();
   endwin();
   return 0;
 }
