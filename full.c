@@ -108,8 +108,8 @@ void grid3x3(int *l, int *c, int x){
       else if(c<1){
         bp[i][j].parede=0;
         bp[i][j].ocupado=0;
-        bp[i][j].c=' ';
-        bp[i][j].cor=1;
+        bp[i][j].c='.';
+        bp[i][j].cor=2;
       }
     }
   }
@@ -143,8 +143,8 @@ void mapa(int *l, int *c){
         else{
           bp[i][j].parede=0;
           bp[i][j].ocupado=0;
-          bp[i][j].c=' ';
-          bp[i][j].cor=1;
+          bp[i][j].c='.';
+          bp[i][j].cor=2;
         }
     }
   }
@@ -155,11 +155,46 @@ void mapa(int *l, int *c){
    j.py = rand() % *l+1;
    j.px = rand() % *c+1;
   }while(bp[j.py][j.px].parede==1 || bp[j.py][j.px].c=='o');
+  bp[j.py][j.px].c=j.c;
+}
+
+void update_visibility(int *l, int *c) {
+    for (int y = 2; y < *l-2; y++) {
+        for (int x = 2; x < *c-2; x++) {
+            if (bp[y][x].visivel == 1) {
+                bp[y][x].visivel = 0;
+                
+                mvaddch(y, x,bp[y][x].c);
+                
+            }
+        }
+    }
+    for (int angle = 0; angle < 360; angle++) {
+        float ray_angle = angle * M_PI / 180.0;
+        float ray_x = cos(ray_angle);
+        float ray_y = sin(ray_angle);
+        
+        float ray_pos_x = j.px + 0.5;
+        float ray_pos_y = j.py + 0.5;
+        while (ray_pos_x >= 0 && ray_pos_x < *c && ray_pos_y >= 0 && ray_pos_y < *l) {
+            int cell_x = (int)ray_pos_x;
+            int cell_y = (int)ray_pos_y;
+            if (bp[cell_y][cell_x].parede == 1) {
+                bp[cell_y][cell_x].visivel=1;
+                break;
+            }
+            bp[cell_y][cell_x].visivel = 1;
+            //mvaddch(cell_y,cell_x,bp[cell_y][cell_x].c);
+            ray_pos_x += ray_x;
+            ray_pos_y += ray_y;
+        }
+    }
 }
 
 int action(int *t){
   int r=0;
-  mvaddch(j.py, j.px, ' ');
+  bp[j.py][j.px].c='.';
+  mvaddch(j.py, j.px, '.');
   if(*t==27) andar+=100;
   else if (*t==56 && bp[j.py-1][j.px].parede==0) j.py--;
   else if (*t==50 && bp[j.py+1][j.px].parede==0) j.py++;
@@ -169,6 +204,7 @@ int action(int *t){
   else if (*t==57 && bp[j.py-1][j.px+1].parede==0) {j.py--; j.px++;}
   else if (*t==49 && bp[j.py+1][j.px-1].parede==0) {j.py++; j.px--;}
   else if (*t==51 && bp[j.py+1][j.px+1].parede==0) {j.py++; j.px++;}
+  bp[j.py][j.px].c=j.c;
   mvaddch(j.py, j.px, j.c);
   if(bp[j.py][j.px].saida==1) r=1;
   return r;
@@ -200,19 +236,25 @@ int main(){
         while (andar<100){
           aux=andar;
           mapa(&l, &c);
+          //update_visibility(&l,&c);
           for(int i=0; i<l; i++){
             for(int j=0; j<c; j++){
-              attron(COLOR_PAIR(bp[i][j].cor));
-              mvaddch(i,j,bp[i][j].c);
-              attroff(COLOR_PAIR(bp[i][j].cor));
+              if(bp[i][j].visivel==1 || bp[i][j].parede==1){
+                attron(COLOR_PAIR(bp[i][j].cor));
+                mvaddch(i,j,bp[i][j].c);
+                attroff(COLOR_PAIR(bp[i][j].cor));
+              }
             }
           }
           mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
           mvprintw(l-1, c-10, "Floor %d", andar);
+          update_visibility(&l,&c);
           mvaddch(j.py, j.px, j.c);
           do{
+            //update_visibility(&l,&c);
             a=getch();
             aux+=action(&a);
+            update_visibility(&l,&c);
           } while (aux==andar);
           andar++;
         }
