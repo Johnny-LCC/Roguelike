@@ -131,7 +131,7 @@ void saida(int *l, int *c){
   bp[sy][sx].cor=6;
 }
 
-void mapa(int *l, int *c){
+void generate_map(int *l, int *c){
   srand(time(NULL));
   double n;
   frame(l,c);
@@ -239,26 +239,25 @@ int main(){
         clear();
         while (andar<100){
           aux=andar;
-          mapa(&l, &c);
-          //update_visibility(&l,&c);
-          for(int i=0; i<l; i++){
-            for(int j=0; j<c; j++){
-              if(bp[i][j].visivel==1 || bp[i][j].parede==1){
-                attron(COLOR_PAIR(bp[i][j].cor));
-                mvaddch(i,j,bp[i][j].c);
-                attroff(COLOR_PAIR(bp[i][j].cor));
-              }
-            }
-          }
-          mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
-          mvprintw(l-1, c-10, "Floor %d", andar);
-          update_visibility(&l,&c);
-          mvaddch(j.py, j.px, j.c);
+          generate_map(&l, &c);
           do{
-            //update_visibility(&l,&c);
             a=getch();
             aux+=action(&a);
-            update_visibility(&l,&c);
+            update_visibility(&l, &c);
+            //clear();
+            for(int i=0; i<l; i++){
+              for(int j=0; j<c; j++){
+                if(bp[i][j].visivel==1 || bp[i][j].parede==1){
+                  attron(COLOR_PAIR(bp[i][j].cor));
+                  mvaddch(i,j,bp[i][j].c);
+                  attroff(COLOR_PAIR(bp[i][j].cor));
+                }
+                else(mvaddch(i,j,' ')); 
+              }
+            }
+            mvaddch(j.py, j.px, j.c);
+            mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
+            mvprintw(l-1, c-10, "Floor %d", andar);
           } while (aux==andar);
           andar++;
         }
