@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 
 /*struct Ponto{
   int y;
@@ -37,12 +38,37 @@ struct Player j={1, 100, 100, 20, 20, 10, 0, 0, 0, '@'};
 
 int andar;
 
-int menu(int l, int c){
-  mvprintw((l/2)-5,(c/2)-3,"ASCENSION");
-  mvprintw((l/2),(c/2)-3,"1 - NOVO JOGO");
-  mvprintw((l/2)+2,(c/2)-3,"2 - INSTRUÇÕES");
-  mvprintw((l/2)+4,(c/2)-3,"3 - CRÉDITOS");
-  return 0;
+void menu(int l, int c){
+  int y=l/2, x=c/2;
+  if(c<70){
+    mvprintw(y-2,x-7,"THE ASCENSION");
+  }
+  else if(c<110){
+    mvprintw(y-8,x-2, "THE");
+    mvprintw(y-7,x-35, ".o888o. .o88888 .o88888 .o88888 88.     8 .o88888 8 .o888o. 88.     8");
+    mvprintw(y-6,x-35, "8     8 8       8       8       8*8.    8 8       8 8     8 8*8.    8");
+    mvprintw(y-5,x-35, "8     8 8       8       8       8 *8.   8 8       8 8     8 8 *8.   8");
+    mvprintw(y-4,x-35, "8888888 *88888. 8       88888   8  *8.  8 *88888. 8 8     8 8  *8.  8");
+    mvprintw(y-3,x-35, "8     8       8 8       8       8   *8. 8       8 8 8     8 8   *8. 8");
+    mvprintw(y-2,x-35, "8     8       8 8       8       8    *8.8       8 8 8     8 8    *8.8");
+    mvprintw(y-1,x-35, "8     8 888880* *088888 *088888 8     *88 888880* 8 *08880* 8     *88");
+  }
+  else{
+    mvprintw(y-11,x-2,"THE");
+    mvprintw(y-10,x-53,".o8888888o.  .o8888888o .o888888888 .o888888888 888.       888  .o8888888o 888 .o88888888o. 888.       888");
+    mvprintw(y-9,x-53, "88888888888 88888888888 88888888888 88888888888 8888.      888 88888888888 888 888888888888 8888.      888");
+    mvprintw(y-8,x-53, "888     888 888         888         888         888*8.     888 888         888 888      888 888*8.     888");
+    mvprintw(y-7,x-53, "888     888 888         888         888         888 *8.    888 888         888 888      888 888 *8.    888");
+    mvprintw(y-6,x-53, "88888888888 8888888888. 888         88888888    888  *8.   888 8888888888. 888 888      888 888  *8.   888");
+    mvprintw(y-5,x-53, "88888888888 *8888888888 888         88888888    888   *8.  888 *8888888888 888 888      888 888   *8.  888");
+    mvprintw(y-4,x-53, "888     888         888 888         888         888    *8. 888         888 888 888      888 888    *8. 888");
+    mvprintw(y-3,x-53, "888     888         888 888         888         888     *8.888         888 888 888      888 888     *8.888");
+    mvprintw(y-2,x-53, "888     888 88888888888 88888888888 88888888888 888      *8888 88888888888 888 888888888888 888      *8888");
+    mvprintw(y-1,x-53, "888     888 088888880*  *0888888888 *0888888888 888       *888 088888880*  888 *0888888880* 888       *888");
+  }
+  mvprintw(y+2,x-5,"1 - JOGO");
+  mvprintw(y+4,x-7,"2 - TUTORIAL");
+  mvprintw(y+6,x-7,"3 - CREDITOS");
 }
 
 int frame(int l, int c){
@@ -161,6 +187,7 @@ int action(int t){
 
 int main(){
   int t=9, l, c, aux=1;
+  int cont=0;
   andar=1;
   initscr();
   start_color();
@@ -177,7 +204,7 @@ int main(){
   getmaxyx(stdscr, l,c);
   menu(l,c);
   t=getch();
-  while (andar<100){
+  while (andar<100 && cont=0){
     aux=andar;
     mapa(l,c);
     for(int i=0; i<l; i++){
