@@ -119,18 +119,6 @@ void grid3x3(int *l, int *c, int x){
   }
 }
 
-void saida(int *l, int *c){
-  srand(time(NULL));
-  int sy, sx;
-  do{
-   sy = rand() % (*l)+1;
-   sx = rand() % (*c)+1;
-  }while(bp[sy][sx].parede==1);
-  bp[sy][sx].c='o';
-  bp[sy][sx].saida=1;
-  bp[sy][sx].cor=6;
-}
-
 void print_map(int *l, int *c){
   for(int i=0; i<*l; i++){
     for(int j=0; j<*c; j++){
@@ -199,10 +187,17 @@ void generate_map(int *l, int *c){
   }
   grid3x3(l,c,5);
   grid3x3(l,c,2);
-  saida(l,c);  
+  int sy, sx;
   do{
-   j.py = rand() % *l+1;
-   j.px = rand() % *c+1;
+   sy = rand() % (*l);
+   sx = rand() % (*c);
+  }while(bp[sy][sx].parede==1);
+  bp[sy][sx].c='o';
+  bp[sy][sx].saida=1;
+  bp[sy][sx].cor=6;  
+  do{
+   j.py = rand() % *l;
+   j.px = rand() % *c;
   }while(bp[j.py][j.px].parede==1 || bp[j.py][j.px].c=='o');
   bp[j.py][j.px].c=j.c; bp[j.py][j.px].cor=4;
   update_visibility(l, c);
