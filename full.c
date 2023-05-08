@@ -65,6 +65,19 @@ void menu(int *l, int *c){
   mvprintw(y+4,x-7,"2 - TUTORIAL");
   mvprintw(y+6,x-7,"3 - CREDITOS");
 }
+void generate_enemies(int num_enemies, int l, int c) {
+  srand(time(NULL));
+  for (int i = 0; i < num_enemies; i++) {
+    int x, y;
+    do {
+      x = rand() % (l - 4) + 2;
+      y = rand() % (c - 4) + 2;
+    } while (bp[x][y].parede == 1 || (x == j.px && y == j.py));
+    bp[x][y].ocupado = 1;
+    bp[x][y].c = 'M';
+  }
+}
+
 
 void frame(int *l, int *c){
   for(int i=0; i<*c; i++){
@@ -245,6 +258,7 @@ int main(){
         while (andar<100){
           aux=andar;
           generate_map(&l, &c);
+          generate_enemies(30, l, c); 
           do{
             a=getch();
             action(&a, &l, &c);
