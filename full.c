@@ -131,6 +131,51 @@ void saida(int *l, int *c){
   bp[sy][sx].cor=6;
 }
 
+void print_map(int *l, int *c){
+  for(int i=0; i<*l; i++){
+    for(int j=0; j<*c; j++){
+      if(bp[i][j].visivel==1 || bp[i][j].parede==1){
+        attron(COLOR_PAIR(bp[i][j].cor));
+        mvaddch(i,j,bp[i][j].c);
+        attroff(COLOR_PAIR(bp[i][j].cor));
+      }
+      else(mvaddch(i,j,' ')); 
+    }
+  }
+  mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
+  mvprintw(*l-1, *c-10, "Floor %d", andar);
+}
+
+void update_visibility(int *l, int *c) {
+    for (int y = 1; y < *l-1; y++) {
+        for (int x = 1; x < *c-1; x++) {
+            if (bp[y][x].visivel == 1) {
+              bp[y][x].visivel = 0;
+            }
+        }
+    }
+    for (int angle = 0; angle < 360; angle++) {
+        float ray_angle = angle * M_PI / 180.0;
+        float ray_x = cos(ray_angle);
+        float ray_y = sin(ray_angle);
+        
+        float ray_pos_x = j.px + 0.5;
+        float ray_pos_y = j.py + 0.5;
+        while (ray_pos_x >= 0 && ray_pos_x < *c && ray_pos_y >= 0 && ray_pos_y < *l) {
+            int cell_x = (int)ray_pos_x;
+            int cell_y = (int)ray_pos_y;
+            if (bp[cell_y][cell_x].parede == 1) {
+                bp[cell_y][cell_x].visivel=1;
+                break;
+            }
+            bp[cell_y][cell_x].visivel = 1;
+            ray_pos_x += ray_x;
+            ray_pos_y += ray_y;
+        }
+    }
+  print_map(l, c);
+}
+
 void generate_map(int *l, int *c){
   srand(time(NULL));
   double n;
@@ -159,47 +204,14 @@ void generate_map(int *l, int *c){
    j.py = rand() % *l+1;
    j.px = rand() % *c+1;
   }while(bp[j.py][j.px].parede==1 || bp[j.py][j.px].c=='o');
-  bp[j.py][j.px].c=j.c;
+  bp[j.py][j.px].c=j.c; bp[j.py][j.px].cor=4;
+  update_visibility(l, c);
 }
 
-void update_visibility(int *l, int *c) {
-    for (int y = 2; y < *l-2; y++) {
-        for (int x = 2; x < *c-2; x++) {
-            if (bp[y][x].visivel == 1) {
-                bp[y][x].visivel = 0;
-                
-                mvaddch(y, x,bp[y][x].c);
-                
-            }
-        }
-    }
-    for (int angle = 0; angle < 360; angle++) {
-        float ray_angle = angle * M_PI / 180.0;
-        float ray_x = cos(ray_angle);
-        float ray_y = sin(ray_angle);
-        
-        float ray_pos_x = j.px + 0.5;
-        float ray_pos_y = j.py + 0.5;
-        while (ray_pos_x >= 0 && ray_pos_x < *c && ray_pos_y >= 0 && ray_pos_y < *l) {
-            int cell_x = (int)ray_pos_x;
-            int cell_y = (int)ray_pos_y;
-            if (bp[cell_y][cell_x].parede == 1) {
-                bp[cell_y][cell_x].visivel=1;
-                break;
-            }
-            bp[cell_y][cell_x].visivel = 1;
-            //mvaddch(cell_y,cell_x,bp[cell_y][cell_x].c);
-            ray_pos_x += ray_x;
-            ray_pos_y += ray_y;
-        }
-    }
-}
-
-int action(int *t){
-  int r=0;
-  bp[j.py][j.px].c='.';
-  mvaddch(j.py, j.px, '.');
+void action(int *t, int *l, int *c){
+  bp[j.py][j.px].c='.'; bp[j.py][j.px].cor=2; 
   if(*t==27) andar+=100;
+  else if(*t==9) generate_map(l, c);
   else if (*t==56 && bp[j.py-1][j.px].parede==0) j.py--;
   else if (*t==50 && bp[j.py+1][j.px].parede==0) j.py++;
   else if (*t==52 && bp[j.py][j.px-1].parede==0) j.px--;
@@ -208,10 +220,8 @@ int action(int *t){
   else if (*t==57 && bp[j.py-1][j.px+1].parede==0) {j.py--; j.px++;}
   else if (*t==49 && bp[j.py+1][j.px-1].parede==0) {j.py++; j.px--;}
   else if (*t==51 && bp[j.py+1][j.px+1].parede==0) {j.py++; j.px++;}
-  bp[j.py][j.px].c=j.c;
-  mvaddch(j.py, j.px, j.c);
-  if(bp[j.py][j.px].saida==1) r=1;
-  return r;
+  bp[j.py][j.px].c=j.c; bp[j.py][j.px].cor=4;
+  update_visibility(l, c);
 }
 
 int main(){
@@ -240,37 +250,10 @@ int main(){
         while (andar<100){
           aux=andar;
           generate_map(&l, &c);
-          update_visibility(&l, &c);
-            for(int i=0; i<l; i++){
-              for(int j=0; j<c; j++){
-                if(bp[i][j].visivel==1 || bp[i][j].parede==1){
-                  attron(COLOR_PAIR(bp[i][j].cor));
-                  mvaddch(i,j,bp[i][j].c);
-                  attroff(COLOR_PAIR(bp[i][j].cor));
-                }
-                else(mvaddch(i,j,' ')); 
-              }
-            }
-            mvaddch(j.py, j.px, j.c);
-            mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
-            mvprintw(l-1, c-10, "Floor %d", andar);
           do{
             a=getch();
-            aux+=action(&a);
-            update_visibility(&l, &c);
-            for(int i=0; i<l; i++){
-              for(int j=0; j<c; j++){
-                if(bp[i][j].visivel==1 || bp[i][j].parede==1 || bp[i][j].saida==1){
-                  attron(COLOR_PAIR(bp[i][j].cor));
-                  mvaddch(i,j,bp[i][j].c);
-                  attroff(COLOR_PAIR(bp[i][j].cor));
-                }
-                else(mvaddch(i,j,' ')); 
-              }
-            }
-            mvaddch(j.py, j.px, j.c);
-            mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
-            mvprintw(l-1, c-10, "Floor %d", andar);
+            action(&a, &l, &c);
+            if(bp[j.py][j.px].saida==1) aux++;
           } while (aux==andar);
           andar++;
         }
