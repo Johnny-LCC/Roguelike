@@ -178,8 +178,8 @@ void generate_map(int *l, int *c){
   frame(l,c);
   for(int i=2; i<*l-2; i++){
     for(int j=2; j<*c-2; j++){
-        n= drand48();
-        if(n<0.27500){
+        n= rand() % 10;
+        if(n < 3){
           bp[i][j].parede=1;
           bp[i][j].ocupado=0;
           bp[i][j].c='#';
