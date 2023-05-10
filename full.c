@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <math.h>
 #include <time.h>
+#include <unistd.h>
 
 struct Casas{
   int parede;
@@ -11,7 +12,6 @@ struct Casas{
   int cor;
   char c;
 };
-struct Casas bp[128][256];
 
 struct Player{
   int level;
@@ -25,19 +25,36 @@ struct Player{
   int px;
   char c;
 };
-struct Player j={1, 100, 100, 20, 20, 10, 0, 0, 0, '@'};
 
 struct Mobs{
+  int n;
   int py;
   int px;
-  //char tipo[20];
-  //struct lligada *prox
-}; //*Mobs;
-struct Mobs monstro[10];
+  char tipo[20];
+};
 
-int andar;
+struct state{
+  struct Casas bp[128][256];
+  struct Player j;
+  struct Mobs monstro[10];
+  int andar;
+};
 
-void menu(int *l, int *c){
+void inicializa(struct state *s){
+  s->j.level=1;
+  s->j.hp_max=100;
+  s->j.hp_atual=100;
+  s->j.mp_max=20;
+  s->j.mp_atual=20;
+  s->j.xp_max=10;
+  s->j.xp_atual=0;
+  s->j.px=0;
+  s->j.py=0;
+  s->j.c='@';
+  s->andar=1;
+}
+
+void menu(int *l, int *c){ //l, c -> LINES, COLS;!!!
   int y=(*l)/2, x=(*c)/2;
   if((*c)<40) mvprintw(y-2,x-7,"THE ASCENSION");
   else if((*c)<70){
@@ -74,79 +91,95 @@ void menu(int *l, int *c){
   mvprintw(y+6,x-7,"3 - CREDITOS");
 }
 
-void frame(int *l, int *c){
+void intro(int *l, int *c){
+  mvprintw((*l/2)-10,(*c/4)-10,"Em um mundo repleto de lendas e mitos,");
+  mvprintw((*l/2)-9,(*c/4)-7,"ergue-se a imponente Torre.");
+  mvprintw((*l/2)-8,(*c/4)-10,"Há quem acredite que aquele que alcançar o topo receberá um poder inigualável.\n\t...");
+  getch();
+  mvprintw((*l/2)-5,(*c/4)-10, "Ao longo dos tempos, heróis e criaturas lendárias se aventuraram na escalada desafiadora da torre, cada um buscando a glória e o domínio supremo.");
+  mvprintw((*l/2)-3,(*c/4)-10, "Os relatos de suas corajosas jornadas ecoam através das eras, permeando as histórias populares e inspirando aspirantes a heróis.");
+  mvprintw((*l/2)-1,(*c/4)-10, "Agora, é chegada a sua vez de enfrentar o desafio e trilhar o caminho rumo à Ascensão.");
+  getch();
+  mvprintw((*l/2)+5,(*c/4)-10,"Prepare-se para enfrentar perigos, desvendar segredos e desafiar as próprias lendas que buscaram a grandiosidade na torre.");
+  mvprintw((*l/2)+7,(*c/4)-10,"O destino aguarda aqueles que ousarem subir até o seu ápice.\n\tBem-vindo a 'The Ascension'!");
+  getch();
+  mvprintw(*l-1, (*c/2)-10, "Prima qualquer tecla.");
+}
+
+void frame(int *l, int *c, struct state *s){
   for(int i=0; i<*c; i++){
-    bp[0][i].parede=1; bp[*l-1][i].parede=1;
-    bp[0][i].ocupado=0; bp[*l-1][i].ocupado=0;
-    bp[0][i].c=' '; bp[*l-1][i].c=' ';
-    bp[0][i].cor=1; bp[*l-1][i].cor=1;
+    s->bp[0][i].parede=1; s->bp[*l-1][i].parede=1;
+    s->bp[0][i].ocupado=0; s->bp[*l-1][i].ocupado=0;
+    s->bp[0][i].c=' '; s->bp[*l-1][i].c=' ';
+    s->bp[0][i].cor=1; s->bp[*l-1][i].cor=1;
     
-    bp[1][i].parede=1; bp[*l-2][i].parede=1;
-    bp[1][i].ocupado=0; bp[*l-2][i].ocupado=0;
-    bp[1][i].c='#'; bp[*l-2][i].c='#';
-    bp[1][i].cor=3; bp[*l-2][i].cor=3;
+    s->bp[1][i].parede=1; s->bp[*l-2][i].parede=1;
+    s->bp[1][i].ocupado=0; s->bp[*l-2][i].ocupado=0;
+    s->bp[1][i].c='#'; s->bp[*l-2][i].c='#';
+    s->bp[1][i].cor=3; s->bp[*l-2][i].cor=3;
   }
   for(int i=1; i<*l-1; i++){
-    bp[i][0].parede=1; bp[i][*c-1].parede=1;
-    bp[i][0].ocupado=0; bp[i][*c-1].ocupado=0;
-    bp[i][0].c=' '; bp[i][*c-1].c=' ';
-    bp[i][0].cor=1; bp[i][*c-1].cor=1;
+    s->bp[i][0].parede=1; s->bp[i][*c-1].parede=1;
+    s->bp[i][0].ocupado=0; s->bp[i][*c-1].ocupado=0;
+    s->bp[i][0].c=' '; s->bp[i][*c-1].c=' ';
+    s->bp[i][0].cor=1; s->bp[i][*c-1].cor=1;
     
-    bp[i][1].parede=1; bp[i][*c-2].parede=1;
-    bp[i][1].ocupado=0; bp[i][*c-2].ocupado=0;
-    bp[i][1].c='#'; bp[i][*c-2].c='#';
-    bp[i][1].cor=3; bp[i][*c-2].cor=3;
+    s->bp[i][1].parede=1; s->bp[i][*c-2].parede=1;
+    s->bp[i][1].ocupado=0; s->bp[i][*c-2].ocupado=0;
+    s->bp[i][1].c='#'; s->bp[i][*c-2].c='#';
+    s->bp[i][1].cor=3; s->bp[i][*c-2].cor=3;
   }
 }
 
-void grid3x3(int *l, int *c, int x){
+void grid3x3(int *l, int *c, int x, struct state *s){
   for(int i=2; i<*l-2; i++){
     for(int j=2; j<*c-2; j++){
-      int c=0;
-      if(bp[i-1][j].parede==1) c++;
-      else if(bp[i-1][j+1].parede==1) c++;
-      else if(bp[i][j+1].parede==1) c++;
-      else if(bp[i+1][j+1].parede==1) c++;
-      else if(bp[i+1][j].parede==1) c++;
-      else if(bp[i+1][j-1].parede==1) c++;
-      else if(bp[i][j-1].parede==1) c++;
-      else if(bp[i-1][j-1].parede==1) c++;
-      if(c>=x){
-        bp[i][j].parede=1;
-        bp[i][j].ocupado=0;
-        bp[i][j].c='#';
-        bp[i][j].cor=3;
+      int cont=0;
+      if(s->bp[i-1][j].parede==1) cont++;
+      else if(s->bp[i-1][j+1].parede==1) cont++;
+      else if(s->bp[i][j+1].parede==1) cont++;
+      else if(s->bp[i+1][j+1].parede==1) cont++;
+      else if(s->bp[i+1][j].parede==1) cont++;
+      else if(s->bp[i+1][j-1].parede==1) cont++;
+      else if(s->bp[i][j-1].parede==1) cont++;
+      else if(s->bp[i-1][j-1].parede==1) cont++;
+      if(cont>=x){
+        s->bp[i][j].parede=1;
+        s->bp[i][j].ocupado=0;
+        s->bp[i][j].c='#';
+        s->bp[i][j].cor=3;
       }
-      else if(c<1){
-        bp[i][j].parede=0;
-        bp[i][j].ocupado=0;
-        bp[i][j].c='.';
-        bp[i][j].cor=2;
+      else if(cont<1){
+        s->bp[i][j].parede=0;
+        s->bp[i][j].ocupado=0;
+        s->bp[i][j].c='.';
+        s->bp[i][j].cor=2;
       }
     }
   }
 }
 
-void print_map(int *l, int *c){
+void print_map(int *l, int *c, struct state *s){
   for(int i=0; i<*l; i++){
     for(int j=0; j<*c; j++){
-      if(bp[i][j].visivel==1 || bp[i][j].parede==1){
-        attron(COLOR_PAIR(bp[i][j].cor));
-        mvaddch(i,j,bp[i][j].c);
-        attroff(COLOR_PAIR(bp[i][j].cor));
+      if(s->bp[i][j].visivel==1 || s->bp[i][j].parede==1){
+        int cor = s->bp[i][j].cor;
+        attron(COLOR_PAIR(cor));
+        mvaddch(i, j, s->bp[i][j].c);
+        attroff(COLOR_PAIR(cor));
       }
       else(mvaddch(i,j,' ')); 
     }
   }
-  mvprintw(0,1, "level %d     hp:%d/%d     mp:%d/%d", j.level, j.hp_atual, j.hp_max, j.mp_atual, j.mp_max);
-  mvprintw(*l-1, *c-10, "Floor %d", andar);
+  mvprintw(0,1, "level %d\t\thp:%d/%d\t\tmp:%d/%d", s->j.level, s->j.hp_atual, s->j.hp_max, s->j.mp_atual, s->j.mp_max);
+  mvprintw(*l-1, *c-10, "Floor %d", s->andar);
 }
 
-void update_visibility(int *l, int *c) {
+void update_visibility(int *l, int *c, struct state *s) {
     for (int y = 1; y < *l-1; y++) {
         for (int x = 1; x < *c-1; x++) {
-            if (bp[y][x].visivel == 1) {
-              bp[y][x].visivel = 0;
+            if (s->bp[y][x].visivel == 1) {
+              s->bp[y][x].visivel = 0;
             }
         }
     }
@@ -155,108 +188,112 @@ void update_visibility(int *l, int *c) {
         float ray_x = cos(ray_angle);
         float ray_y = sin(ray_angle);
         
-        float ray_pos_x = j.px + 0.5;
-        float ray_pos_y = j.py + 0.5;
+        float ray_pos_x = s->j.px + 0.5;
+        float ray_pos_y = s->j.py + 0.5;
         while (ray_pos_x >= 0 && ray_pos_x < *c && ray_pos_y >= 0 && ray_pos_y < *l) {
             int cell_x = (int)ray_pos_x;
             int cell_y = (int)ray_pos_y;
-            if (bp[cell_y][cell_x].parede == 1) {
-                bp[cell_y][cell_x].visivel=1;
+            if (s->bp[cell_y][cell_x].parede == 1) {
+                s->bp[cell_y][cell_x].visivel=1;
                 break;
             }
-            bp[cell_y][cell_x].visivel = 1;
+            s->bp[cell_y][cell_x].visivel = 1;
             ray_pos_x += ray_x;
             ray_pos_y += ray_y;
         }
     }
-  print_map(l, c);
 }
 
-void generate_map(int *l, int *c){
+void generate_map(int *l, int *c, struct state *s){
   srand(time(NULL));
   double n;
-  frame(l,c);
+  frame(l,c,s);
   for(int i=2; i<*l-2; i++){
     for(int j=2; j<*c-2; j++){
         n= rand() % 10;
-        if(n < 3){
-          bp[i][j].parede=1;
-          bp[i][j].ocupado=0;
-          bp[i][j].c='#';
-          bp[i][j].cor=3;
+        if(n < 2){
+          s->bp[i][j].parede=1;
+          s->bp[i][j].ocupado=0;
+          s->bp[i][j].c='#';
+          s->bp[i][j].cor=3;
         }
         else{
-          bp[i][j].parede=0;
-          bp[i][j].ocupado=0;
-          bp[i][j].c='.';
-          bp[i][j].cor=2;
+          s->bp[i][j].parede=0;
+          s->bp[i][j].ocupado=0;
+          s->bp[i][j].c='.';
+          s->bp[i][j].cor=2;
         }
     }
   }
-  grid3x3(l,c,6);
-  grid3x3(l,c,4);
+  grid3x3(l,c,6,s);
+  grid3x3(l,c,4,s);
   int sy, sx;
   do{
    sy = rand() % (*l);
    sx = rand() % (*c);
-  }while(bp[sy][sx].parede==1);
-  bp[sy][sx].c='o';
-  bp[sy][sx].saida=1;
-  bp[sy][sx].cor=6;  
+  }while(s->bp[sy][sx].parede==1);
+  s->bp[sy][sx].c='o';
+  s->bp[sy][sx].saida=1;
+  s->bp[sy][sx].cor=6;  
   do{
-   j.py = rand() % *l;
-   j.px = rand() % *c;
-  }while(bp[j.py][j.px].parede==1 || bp[j.py][j.px].c=='o');
-  bp[j.py][j.px].c=j.c; bp[j.py][j.px].cor=4;
-  for(int i=0; i<(andar % 10); i++){
+   s->j.py = rand() % *l;
+   s->j.px = rand() % *c;
+  }while(s->bp[s->j.py][s->j.px].parede==1 || s->bp[s->j.py][s->j.px].c=='o');
+  s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+  for(int i=0; i<(s->andar % 10); i++){
     do{
-     monstro[i].py = rand() % *l;
-     monstro[i].px = rand() % *c;
-    }while(bp[monstro[i].py][monstro[i].px].parede==1 || bp[monstro[i].py][monstro[i].px].saida==1 || bp[monstro[i].py][monstro[i].px].c=='@');
-    bp[monstro[i].py][monstro[i].px].c='X'; bp[monstro[i].py][monstro[i].px].cor=5; bp[monstro[i].py][monstro[i].px].ocupado=1; 
+     s->monstro[i].py = rand() % *l;
+     s->monstro[i].px = rand() % *c;
+    }while(s->bp[s->monstro[i].py][s->monstro[i].px].parede==1 || s->bp[s->monstro[i].py][s->monstro[i].px].saida==1 || s->bp[s->monstro[i].py][s->monstro[i].px].c=='@');
+    s->bp[s->monstro[i].py][s->monstro[i].px].c='X'; s->bp[s->monstro[i].py][s->monstro[i].px].cor=5; s->bp[s->monstro[i].py][s->monstro[i].px].ocupado=1; 
   }
-  update_visibility(l, c);
 }
 
-void mmovement() { //chebyshev_distance
-  for(int i=0; i<(andar%10); i++){
-    bp[monstro[i].py][monstro[i].px].c='.';
-    bp[monstro[i].py][monstro[i].px].cor=2;
-    bp[monstro[i].py][monstro[i].px].ocupado=0;
-    int dx = (j.px - monstro[i].px);
-    int dy = (j.py - monstro[i].py);
-    if(bp[monstro[i].py][monstro[i].px].visivel==1){
-      if(dy > 0) monstro[i].py++;
-      else if(dy < 0) monstro[i].py--;
-      if(dx > 0) monstro[i].px++;
-      else if(dx < 0) monstro[i].px--;
+void mmovement_alt(struct state *s){
+  for(int i=0; i<(s->andar%10); i++){
+    if(s->bp[s->monstro[i].py][s->monstro[i].px].visivel==1){
+      s->bp[s->monstro[i].py][s->monstro[i].px].c='.';
+      s->bp[s->monstro[i].py][s->monstro[i].px].cor=2;
+      s->bp[s->monstro[i].py][s->monstro[i].px].ocupado=0;
+      s->bp[s->monstro[i].py][s->monstro[i].px].parede=0;
+      int dx = (s->j.px - s->monstro[i].px);
+      int dy = (s->j.py - s->monstro[i].py);
+      if(dy > 0) s->monstro[i].py++;
+      else if(dy < 0) s->monstro[i].py--;
+      if(dx > 0) s->monstro[i].px++;
+      else if(dx < 0) s->monstro[i].px--;
+      s->bp[s->monstro[i].py][s->monstro[i].px].c='X';
+      s->bp[s->monstro[i].py][s->monstro[i].px].cor=5;
+      s->bp[s->monstro[i].py][s->monstro[i].px].ocupado=1;
+      s->bp[s->monstro[i].py][s->monstro[i].px].parede=0;
     }
-    bp[monstro[i].py][monstro[i].px].c='X';
-    bp[monstro[i].py][monstro[i].px].cor=5;
-    bp[monstro[i].py][monstro[i].px].ocupado=1;
   }
 }
 
-void action(int *t, int *l, int *c){
-  bp[j.py][j.px].c='.'; bp[j.py][j.px].cor=2; 
-  if(*t==27) andar+=100;
-  else if(*t==9) generate_map(l, c);
-  else if (*t==56 && bp[j.py-1][j.px].parede==0) j.py--;
-  else if (*t==50 && bp[j.py+1][j.px].parede==0) j.py++;
-  else if (*t==52 && bp[j.py][j.px-1].parede==0) j.px--;
-  else if (*t==54 && bp[j.py][j.px+1].parede==0) j.px++;
-  else if (*t==55 && bp[j.py-1][j.px-1].parede==0) {j.py--; j.px--;}
-  else if (*t==57 && bp[j.py-1][j.px+1].parede==0) {j.py--; j.px++;}
-  else if (*t==49 && bp[j.py+1][j.px-1].parede==0) {j.py++; j.px--;}
-  else if (*t==51 && bp[j.py+1][j.px+1].parede==0) {j.py++; j.px++;}
-  bp[j.py][j.px].c=j.c; bp[j.py][j.px].cor=4;
-  update_visibility(l, c);
-  mmovement();
+void action(int *t, int *l, int *c, struct state *s){
+  s->bp[s->j.py][s->j.px].c='.'; s->bp[s->j.py][s->j.px].cor=2; 
+  if(*t==27) s->andar+=100;
+  else if(*t==9) generate_map(l, c, s);
+  else if (*t==56 && s->bp[s->j.py-1][s->j.px].parede==0) s->j.py--;
+  else if (*t==50 && s->bp[s->j.py+1][s->j.px].parede==0) s->j.py++;
+  else if (*t==52 && s->bp[s->j.py][s->j.px-1].parede==0) s->j.px--;
+  else if (*t==54 && s->bp[s->j.py][s->j.px+1].parede==0) s->j.px++;
+  else if (*t==55 && s->bp[s->j.py-1][s->j.px-1].parede==0) {s->j.py--; s->j.px--;}
+  else if (*t==57 && s->bp[s->j.py-1][s->j.px+1].parede==0) {s->j.py--; s->j.px++;}
+  else if (*t==49 && s->bp[s->j.py+1][s->j.px-1].parede==0) {s->j.py++; s->j.px--;}
+  else if (*t==51 && s->bp[s->j.py+1][s->j.px+1].parede==0) {s->j.py++; s->j.px++;}
+  s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+  mmovement_alt(s);
+  update_visibility(l, c, s);
+  print_map(l, c, s);
 }
 
 int main(){
-  int t=9, a=53, l, c, aux=1;
-  andar=1;
+  struct state s;
+  inicializa(&s);
+  int t=9, a=53, l, c;
+  int aux=1;
+  //s.andar=1;
   initscr();
   start_color();
   init_pair(1, COLOR_BLACK, COLOR_BLACK);
@@ -277,18 +314,22 @@ int main(){
     switch(t){
       case 49:
         clear();
-        while (andar<100){
-          aux=andar;
-          generate_map(&l, &c);
+        intro(&l, &c);
+        getch();
+        while (s.andar<100){
+          aux=s.andar;
+          generate_map(&l, &c, &s);
+          update_visibility(&l, &c, &s);
+          print_map(&l, &c, &s);
           do{
             a=getch();
-            action(&a, &l, &c);
-            if(bp[j.py][j.px].saida==1) aux++;
-          } while (aux==andar && j.hp_atual!=0);
-          andar++;
+            action(&a, &l, &c, &s);
+            if(s.bp[s.j.py][s.j.px].saida==1) aux++;
+          } while (aux==s.andar && s.j.hp_atual!=0);
+          s.andar++;
         }
         clear();
-        andar=1;
+        s.andar=1;
         printw("\t\t\tFIM... PARABENS\n\n\tPrima 'ESC' para sair do jogo ou qualquer outra tecla para voltar ao menu.");
         t=getch();
         break;
