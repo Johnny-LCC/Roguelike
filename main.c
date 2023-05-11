@@ -8,7 +8,7 @@
 #include "mapa.h"
 #include "action.h"
 
-void inicializa(struct state *s){
+void inicializa(struct state *s, int *l, int *c){
   s->j.level=1;
   s->j.hp_max=100;
   s->j.hp_atual=100;
@@ -20,6 +20,10 @@ void inicializa(struct state *s){
   s->j.py=0;
   s->j.c='@';
   s->andar=1;
+  s->bp=(struct Casas **) calloc(*l, sizeof(struct Casas*));
+  for(int i=0; i<*l; i++){
+    s->bp[i] = (struct Casas *) calloc(*c, sizeof(struct Casas));
+  }
 }
 
 void menu(int *l, int *c){ //l, c -> LINES, COLS;!!!
@@ -76,7 +80,6 @@ void intro(int *l, int *c){
 
 int main(){
   struct state s;
-  inicializa(&s);
   int t=9, a=53, l, c;
   int aux=1;
   //s.andar=1;
@@ -93,6 +96,7 @@ int main(){
   noecho();
   curs_set(0);
   getmaxyx(stdscr, l,c);
+  inicializa(&s, &l, &c);
   do{
     clear();
     menu((&l), (&c));
