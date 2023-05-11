@@ -30,7 +30,7 @@ struct Mobs{
 };
 
 struct state{
-  struct Casas bp[128][256];
+  struct Casas **bp;
   struct Player j;
   struct Mobs monstro[10];
   int andar;
