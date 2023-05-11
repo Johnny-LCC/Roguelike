@@ -127,7 +127,7 @@ int main(){
         break;
       case 51:
         clear();
-        printw("\tJOAO\n\tALEXIS\n\tPATRICIA\n\tANA\n\tLCC-LA1");
+        printw("\tJOAO FONSECA - A102512\n\tALEXIS CORREIA - A102495\n\tPATRICIA BASTOS - A102502\n\tANA TAXA - A102490\n\tLABORATORIO DE ALGORITMIA I - LCC");
         getch();
         break;
       case 27:
