@@ -8,12 +8,13 @@
 #include "mapa.h"
 #include "action.h"
 
+//colocar coordenadas nos mvprintw
 
 //como começar, como usar o hp atual do player decidido noutros sitios para aqui (?)
 
-
-void combate(int *l, int *c, int j.hp_inicial, int hp_inimigo){  //colocar hp aqui ????, falta hp do inimigo
+void combate(int *l, int *c, int j.hp_atual/*, int hp_inimigo*/){  //colocar hp aqui ????, falta hp do inimigo
     
+    int hp_inimigo = 40;
     int ataqueJogador = 5; 
     int ataqueInimigo = 5; //trocar
 
@@ -22,17 +23,17 @@ void combate(int *l, int *c, int j.hp_inicial, int hp_inimigo){  //colocar hp aq
     srand(time(NULL));
     int r = rand();  //???? aleatorio
 
-    while(j.hp_inicial>0 && hp_inimigo>0){
+    while(j.hp_atual>0 && hp_inimigo>0){
 
         //turno do jogador
         mvprintw("-- Turno do Jogador --");
-        mvprintw("HP do Jogador : ""%d", j.hp_inicial"");
+        mvprintw("HP do Jogador : ""%d", j.hp_atual"");
         mvprintw("HP do Inimigo: ""%d", hp_inimigo"");
         mvprintw("a - Ataque");
         mvprintw("h - Curar");
         mvprintw("r - Fugir");
 
-        string escolha = mvscanw();
+        char escolha[] = mvscanw();
 
         if(escolha == "a"){
             hp_inimigo -= ataqueJogador;
@@ -50,13 +51,23 @@ void combate(int *l, int *c, int j.hp_inicial, int hp_inimigo){  //colocar hp aq
             int escolhaInimigo = r;
 
             if(escolhaInimigo == 0){
-                j.hp_inicial -= ataqueInimigo;
+                j.hp_atual -= ataqueInimigo;
             mvprintw("O inimigo atacou o Jogador e deu ""%d", ataqueInimigo" de dano.");
             } 
             else {
                 hp_inimigo += heal;
                 mvprintw("O inimigo recebeu ""%d", heal" pontos de cura.");
             }
+        }
+
+        if(j.hp_atual == 0){
+            mvprintw("GAME OVER");
+            mvprintw("espaço para voltar");
+            //fazer voltar ao menu inicial 
+        }
+        if(hp_inimigo == 0){
+            mvprintw("YOU WIN");
+            //fazer continuar
         }
     }
 
