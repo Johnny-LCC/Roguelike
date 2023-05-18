@@ -1,9 +1,8 @@
 #ifndef ___INIT_H___
 #define ___INIT_H___
 
-#include <string.h>
-#include <stdlib.h>
+#include "state.h"
 
-void inicio(struct state *s, int lines, int cols);
+void init_jogo(struct state *s, int lines, int cols);
 
 #endif
