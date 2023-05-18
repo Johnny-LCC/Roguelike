@@ -79,7 +79,7 @@ int main(){
   keypad(stdscr, 1);
   noecho();
   curs_set(0);
-  inicializa(&s, LINES, COLS);
+  init_jogo(&s, LINES, COLS);
   do{
     clear();
     menu(LINES, COLS);
