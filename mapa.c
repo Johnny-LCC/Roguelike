@@ -4,37 +4,36 @@
 #include <time.h>
 #include <unistd.h>
 
-//#include "state.h"
 #include "mapa.h"
 
-void frame(int *l, int *c, struct state *s){
-  for(int i=0; i<*c; i++){
-    s->bp[0][i].parede=1; s->bp[*l-1][i].parede=1;
-    s->bp[0][i].ocupado=0; s->bp[*l-1][i].ocupado=0;
-    s->bp[0][i].c=' '; s->bp[*l-1][i].c=' ';
-    s->bp[0][i].cor=1; s->bp[*l-1][i].cor=1;
+void frame(struct state *s){
+  for(int i=0; i < s->c; i++){
+    s->bp[0][i].parede=1; s->bp[s->l-1][i].parede=1;
+    s->bp[0][i].ocupado=0; s->bp[s->l-1][i].ocupado=0;
+    s->bp[0][i].c=' '; s->bp[s->l-1][i].c=' ';
+    s->bp[0][i].cor=1; s->bp[s->l-1][i].cor=1;
     
-    s->bp[1][i].parede=1; s->bp[*l-2][i].parede=1;
-    s->bp[1][i].ocupado=0; s->bp[*l-2][i].ocupado=0;
-    s->bp[1][i].c='#'; s->bp[*l-2][i].c='#';
-    s->bp[1][i].cor=3; s->bp[*l-2][i].cor=3;
+    s->bp[1][i].parede=1; s->bp[s->l-2][i].parede=1;
+    s->bp[1][i].ocupado=0; s->bp[s->l-2][i].ocupado=0;
+    s->bp[1][i].c='#'; s->bp[s->l-2][i].c='#';
+    s->bp[1][i].cor=3; s->bp[s->l-2][i].cor=3;
   }
-  for(int i=1; i<*l-1; i++){
-    s->bp[i][0].parede=1; s->bp[i][*c-1].parede=1;
-    s->bp[i][0].ocupado=0; s->bp[i][*c-1].ocupado=0;
-    s->bp[i][0].c=' '; s->bp[i][*c-1].c=' ';
-    s->bp[i][0].cor=1; s->bp[i][*c-1].cor=1;
+  for(int i=1; i < s->l-1; i++){
+    s->bp[i][0].parede=1; s->bp[i][s->c-1].parede=1;
+    s->bp[i][0].ocupado=0; s->bp[i][s->c-1].ocupado=0;
+    s->bp[i][0].c=' '; s->bp[i][s->c-1].c=' ';
+    s->bp[i][0].cor=1; s->bp[i][s->c-1].cor=1;
     
-    s->bp[i][1].parede=1; s->bp[i][*c-2].parede=1;
-    s->bp[i][1].ocupado=0; s->bp[i][*c-2].ocupado=0;
-    s->bp[i][1].c='#'; s->bp[i][*c-2].c='#';
-    s->bp[i][1].cor=3; s->bp[i][*c-2].cor=3;
+    s->bp[i][1].parede=1; s->bp[i][s->c-2].parede=1;
+    s->bp[i][1].ocupado=0; s->bp[i][s->c-2].ocupado=0;
+    s->bp[i][1].c='#'; s->bp[i][s->c-2].c='#';
+    s->bp[i][1].cor=3; s->bp[i][s->c-2].cor=3;
   }
 }
 
-void grid3x3(int *l, int *c, int x, struct state *s){
-  for(int i=2; i<*l-2; i++){
-    for(int j=2; j<*c-2; j++){
+void grid3x3(int x, struct state *s){
+  for(int i=2; i < s->l-2; i++){
+    for(int j=2; j < s->c-2; j++){
       int cont=0;
       if(s->bp[i-1][j].parede==1) cont++;
       else if(s->bp[i-1][j+1].parede==1) cont++;
@@ -60,14 +59,14 @@ void grid3x3(int *l, int *c, int x, struct state *s){
   }
 }
 
-void generate_map(int *l, int *c, struct state *s){
+void generate_map(struct state *s){
   srand(time(NULL));
   double n;
-  frame(l,c,s);
-  for(int i=2; i<*l-2; i++){
-    for(int j=2; j<*c-2; j++){
-        n= rand() % 10;
-        if(n < 2){
+  frame(s);
+  for(int i=2; i< s->l-2; i++){
+    for(int j=2; j< s->c-2; j++){
+        n= rand() % 100;
+        if(n < 20){
           s->bp[i][j].parede=1;
           s->bp[i][j].ocupado=0;
           s->bp[i][j].c='#';
@@ -81,33 +80,35 @@ void generate_map(int *l, int *c, struct state *s){
         }
     }
   }
-  grid3x3(l,c,6,s);
-  grid3x3(l,c,4,s);
+  grid3x3(6,s);
+  grid3x3(4,s);
   int sy, sx;
   do{
-   sy = rand() % (*l);
-   sx = rand() % (*c);
+   sy = rand() % (s->l);
+   sx = rand() % (s->c);
   }while(s->bp[sy][sx].parede==1);
   s->bp[sy][sx].c='o';
   s->bp[sy][sx].saida=1;
   s->bp[sy][sx].cor=6;  
   do{
-   s->j.py = rand() % *l;
-   s->j.px = rand() % *c;
+   s->j.py = rand() % s->l;
+   s->j.px = rand() % s->c;
   }while(s->bp[s->j.py][s->j.px].parede==1 || s->bp[s->j.py][s->j.px].c=='o');
   s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
   for(int i=0; i<(s->andar % 10); i++){
+    int index = rand()%10;
+    s->mobs[i].inimigo=s->monstro[index];
     do{
-     s->monstro[i].py = rand() % *l;
-     s->monstro[i].px = rand() % *c;
-    }while(s->bp[s->monstro[i].py][s->monstro[i].px].parede==1 || s->bp[s->monstro[i].py][s->monstro[i].px].saida==1 || s->bp[s->monstro[i].py][s->monstro[i].px].c=='@');
-    s->bp[s->monstro[i].py][s->monstro[i].px].c='X'; s->bp[s->monstro[i].py][s->monstro[i].px].cor=5; s->bp[s->monstro[i].py][s->monstro[i].px].ocupado=1; 
+     s->mobs[i].py = rand() % s->l;
+     s->mobs[i].px = rand() % s->c;
+    }while(s->bp[s->mobs[i].py][s->mobs[i].px].parede==1 || s->bp[s->mobs[i].py][s->mobs[i].px].saida==1 || s->bp[s->mobs[i].py][s->mobs[i].px].c=='@');
+    s->bp[s->mobs[i].py][s->mobs[i].px].c='X'; s->bp[s->mobs[i].py][s->moba[i].px].cor=5; s->bp[s->mobs[i].py][s->mobs[i].px].ocupado=1; 
   }
 }
 
-void print_map(int *l, int *c, struct state *s){
-  for(int i=0; i<*l; i++){
-    for(int j=0; j<*c; j++){
+void print_map(struct state *s){
+  for(int i=0; i < s->l; i++){
+    for(int j=0; j < s->c; j++){
       if(s->bp[i][j].visivel==1 || s->bp[i][j].parede==1){
         int cor = s->bp[i][j].cor;
         attron(COLOR_PAIR(cor));
@@ -117,6 +118,6 @@ void print_map(int *l, int *c, struct state *s){
       else(mvaddch(i,j,' ')); 
     }
   }
-  mvprintw(0,1, "level %d\t\thp:%d/%d\t\tmp:%d/%d", s->j.level, s->j.hp_atual, s->j.hp_max, s->j.mp_atual, s->j.mp_max);
-  mvprintw(*l-1, *c-10, "Floor %d", s->andar);
+  mvprintw(0,1, "level %d\t\thp:%d/%d\t\txp:%d/%d", s->j.level, s->j.hp_atual, s->j.hp_max, s->j.xp_atual, s->j.xp_max);
+  mvprintw(s->l-1, s->c-10, "Floor %d", s->andar);
 }
