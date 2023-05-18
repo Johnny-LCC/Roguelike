@@ -38,24 +38,24 @@ void update_visibility(struct state *s){
 
 void maction(struct state *s){
   for(int i=0; i<(s->andar%10); i++){
-    int dx = (s->j.px - s->monstro[i].px);
-    int dy = (s->j.py - s->monstro[i].py);
+    int dx = (s->j.px - s->mobs[i].px);
+    int dy = (s->j.py - s->mobs[i].py);
     if((dx==1 || dx==0 || dx==-1) && (dy==1 || dy==0 || dy==-1)){
-      s->j.hp_atual--;
+      mcomb(s);
     }
-    else if (s->bp[s->monstro[i].py][s->monstro[i].px].visivel==1){
-      s->bp[s->monstro[i].py][s->monstro[i].px].c='.';
-      s->bp[s->monstro[i].py][s->monstro[i].px].cor=2;
-      s->bp[s->monstro[i].py][s->monstro[i].px].ocupado=0;
-      s->bp[s->monstro[i].py][s->monstro[i].px].parede=0;
-      if(dy > 0) s->monstro[i].py++;
-      else if(dy < 0) s->monstro[i].py--;
-      if(dx > 0) s->monstro[i].px++;
-      else if(dx < 0) s->monstro[i].px--;
-      s->bp[s->monstro[i].py][s->monstro[i].px].c='X';
-      s->bp[s->monstro[i].py][s->monstro[i].px].cor=5;
-      s->bp[s->monstro[i].py][s->monstro[i].px].ocupado=1;
-      s->bp[s->monstro[i].py][s->monstro[i].px].parede=0;
+    else if (s->bp[s->mobs[i].py][s->mobs[i].px].visivel==1){
+      s->bp[s->mobs[i].py][s->mobs[i].px].c='.';
+      s->bp[s->mobs[i].py][s->mobs[i].px].cor=2;
+      s->bp[s->mobs[i].py][s->mobs[i].px].ocupado=0;
+      s->bp[s->mobs[i].py][s->mobs[i].px].parede=0;
+      if(dy > 0) s->mobs[i].py++;
+      else if(dy < 0) s->mobs[i].py--;
+      if(dx > 0) s->mobs[i].px++;
+      else if(dx < 0) s->mobs[i].px--;
+      s->bp[s->mobs[i].py][s->mobs[i].px].c='X';
+      s->bp[s->mobs[i].py][s->mobs[i].px].cor=5;
+      s->bp[s->mobs[i].py][s->mobs[i].px].ocupado=1;
+      s->bp[s->mobs[i].py][s->mobs[i].px].parede=0;
     }
   }
 }
