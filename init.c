@@ -3,7 +3,7 @@
 
 #include "init.h"
 
-void inicio(struct state *s, int lines, int cols){
+void init_jogo(struct state *s, int lines, int cols){
   //jogador
   s->j.level=1;
   s->j.hp_max=100;
