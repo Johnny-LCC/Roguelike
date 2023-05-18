@@ -48,19 +48,23 @@ void menu(int l, int c){
   mvprintw(y+6,x-7,"3. CREDITOS");
 }
 
-void intro(int l, int c){
-  mvprintw((l/2)-10,(c/4)-10,"Em um mundo repleto de lendas e mitos,");
-  mvprintw((l/2)-9,(c/4)-7,"ergue-se a imponente Torre.");
-  mvprintw((l/2)-8,(c/4)-10,"Há quem acredite que aquele que alcançar o topo receberá um poder inigualável.\n\t...");
+void intro(int *l, int *c){
+  mvprintw((*l/2)-10,(*c/4)+26,"Em um mundo repleto de lendas e mitos,");
+  mvprintw((*l/2)-9,(*c/4)+32,"ergue-se a imponente Torre.");
+  mvprintw((*l/2)-8,(*c/4)+6,"Há quem acredite que aquele que alcançar o topo receberá um poder inigualável.");
+  mvprintw((*l/2)-7,(*c/4)+44, "...");
   getch();
-  mvprintw((l/2)-5,(c/4)-10, "Ao longo dos tempos, heróis e criaturas lendárias se aventuraram na escalada desafiadora da torre, cada um buscando a glória e o domínio supremo.");
-  mvprintw((l/2)-3,(c/4)-10, "Os relatos de suas corajosas jornadas ecoam através das eras, permeando as histórias populares e inspirando aspirantes a heróis.");
-  mvprintw((l/2)-1,(c/4)-10, "Agora, é chegada a sua vez de enfrentar o desafio e trilhar o caminho rumo à Ascensão.");
+  mvprintw((*l/2)-6,(*c/4)+7, "Ao longo dos tempos, heróis e criaturas lendárias se aventuraram na escalada");
+  mvprintw((*l/2)-5,(*c/4)+11,  "desafiadora da torre, cada um buscando a glória e o domínio supremo.");
+  mvprintw((*l/2)-3,(*c/4)+15, "Os relatos de suas corajosas jornadas ecoam através das eras,");
+  mvprintw((*l/2)-2,(*c/4)+12, "permeando as histórias populares e inspirando aspirantes a heróis.");
+  mvprintw((*l/2)-1,(*c/4)+2, "Agora, é chegada a sua vez de enfrentar o desafio e trilhar o caminho rumo à Ascensão.");
   getch();
-  mvprintw((l/2)+5,(c/4)-10,"Prepare-se para enfrentar perigos, desvendar segredos e desafiar as próprias lendas que buscaram a grandiosidade na torre.");
-  mvprintw((l/2)+7,(c/4)-10,"O destino aguarda aqueles que ousarem subir até o seu ápice.\n\tBem-vindo a 'The Ascension'!");
+  mvprintw((*l/2)+5,(*c/4)-16,"Prepare-se para enfrentar perigos, desvendar segredos e desafiar as próprias lendas que buscaram a grandiosidade na torre.");
+  mvprintw((*l/2)+7,(*c/4)+15,"O destino aguarda aqueles que ousarem subir até o seu ápice.");
+  mvprintw((*l/2)+8,(*c/4)+31, "Bem-vindo a 'The Ascension'!");
   getch();
-  mvprintw(l-1, (c/2)-10, "Prima qualquer tecla.");
+  mvprintw(*l-1, (*c/2)-10, "Prima qualquer tecla.");
 }
 
 int main(){
