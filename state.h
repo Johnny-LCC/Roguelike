@@ -26,7 +26,7 @@ struct Player{
 struct Dano{
   int n_dados;
   int n_faces;
-}
+};
 
 struct Item{
   char nome[20];
