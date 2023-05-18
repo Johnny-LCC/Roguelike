@@ -26,13 +26,13 @@ void init_jogo(struct state *s, int lines, int cols){
   }
   
   //drops
-  s->drops[0]
+  //s->drops[0]
   
   //inventário
   s->inventario = (struct Inventario *)malloc(sizeof(struct Inventario));
   strcpy(s->inventario->item.nome, "Espada simples");
   s->inventario->item.equipavel = 1; s->inventario->item.equipado = 1;
-  s->inventario->item.dmg = {2,6};
+  s->inventario->item.dmg.n_dados = 2; s->inventario->item.dmg.n_faces = 6;
   s->inventario->next = (struct Inventario *)malloc(sizeof(struct Inventario));
   strcpy(s->inventario->next->item.nome, "Escudo enferrujado");
   s->inventario->next->item.equipavel = 1; s->inventario->next->item.equipado = 1;
