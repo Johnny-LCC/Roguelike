@@ -1,5 +1,5 @@
-#ifndef ___INIT.H___
-#define ___INIT.H___
+#ifndef ___INIT_H___
+#define ___INIT_H___
 
 #include <string.h>
 #include <stdlib.h>
