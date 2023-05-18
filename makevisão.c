@@ -1,12 +1,12 @@
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#define M_PI 3.14159265358979323846
 
 typedef struct {
     int x;
     int y;
+    int direction; 
 } Point;
 
 int calcular_distancia(Point i, Point f) {  // é calculada a distancia para definir o campo de visao do jogador, ou seja, se a celula for menor ou igual a distancia entao o jogador consegue ver 
@@ -21,6 +21,17 @@ int calcular_angulo(Point i, Point f) { // calcula o angulo, ou seja, dentro do 
 
 void calculate_fov(Point jogador, int raio_max, int fov_angulo, int** mapa_jogo, int comp_mapa , int altura_mapa)  {
     //a função calcula o campo de visao
+    int coord_x, coord_y, player_direction;
+    printf("Digite a posição do jogador:\n");
+    printf("Coordenada X: ");
+    scanf("%d", &coord_x);
+    printf("Coordenada Y: ");
+    scanf("%d", &coord_y);
+    printf("Direção (em graus): ");
+    scanf("%d", &player_direction);
+    
+    Point player = { coord_x, coord_y };
+
      for (int x = 0; x < comp_mapa ; x++) {
         for (int y = 0; y < altura_mapa ; y++) {
             Point cel = { x, y };
@@ -72,3 +83,5 @@ int main() {
     
     return 0;
 }
+
+
