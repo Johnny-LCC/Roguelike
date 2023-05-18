@@ -6,44 +6,10 @@
 #include <string.h>
 
 #include "state.h"
+#include "init.h"
 #include "mapa.h"
 #include "action.h"
 
-void inicializa(struct state *s, int lines, int cols){
-  s->j.level=1;
-  s->j.hp_max=100;
-  s->j.hp_atual=100;
-  s->j.mp_max=20;
-  s->j.mp_atual=20;
-  s->j.xp_max=10;
-  s->j.xp_atual=0;
-  s->j.px=0;
-  s->j.py=0;
-  s->j.c='@';
-  
-  s->andar=1;
-  s->l=lines;
-  s->c=cols;
-  
-  s->bp=(struct Casas **) calloc(s->l, sizeof(struct Casas*));
-  for(int i=0; i<s->l; i++){
-    s->bp[i] = (struct Casas *) calloc(s->c, sizeof(struct Casas));
-  }
-  
-  s->inventario = (struct Inventario *)malloc(sizeof(struct Inventario));
-  strcpy(s->inventario->item.nome, "Espada simples");
-  s->inventario->item.equipavel = 1;
-  s->inventario->item.stats = 5;
-  s->inventario->next = (struct Inventario *)malloc(sizeof(struct Inventario));
-  strcpy(s->inventario->next->item.nome, "Escudo simples");
-  s->inventario->next->item.equipavel = 2;
-  s->inventario->next->item.stats = 5;
-  s->inventario->next->next = (struct Inventario *)malloc(sizeof(struct Inventario));
-  strcpy(s->inventario->next->next->item.nome, "Roupa gasta");
-  s->inventario->next->next->item.equipavel = 1;
-  s->inventario->next->next->item.stats = 0;
-  s->inventario->next->next->next=NULL;
-}
 
 void menu(int l, int c){
   int y=l/2, x=c/2;
