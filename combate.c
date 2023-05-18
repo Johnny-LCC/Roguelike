@@ -12,7 +12,7 @@
 
 //como começar, como usar o hp atual do player decidido noutros sitios para aqui (?)
 
-void combate(struct state *s){  //colocar hp aqui ????, falta hp do inimigo
+void combate(struct state *s){  
     
     int ataqueJogador =  ; 
     int ataque_monstro = s->monstro[i].atk ; //trocar
