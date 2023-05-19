@@ -3,8 +3,10 @@
 
 #include "state.h"
 
-int dice(int num, int faces);
 void update_visibility(struct state *s);
+void listar(struct state *s);
+void reward(struct state *s);
+int dice(int num, int faces);
 void mcombate(struct state *s, int index);
 void maction(struct state *s);
 void combate(struct state *s, int y, int x);
