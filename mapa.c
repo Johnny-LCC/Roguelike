@@ -120,4 +120,11 @@ void print_map(struct state *s){
   }
   mvprintw(0,1, "level %d\t\thp:%d/%d\t\txp:%d/%d", s->j.level, s->j.hp_atual, s->j.hp_max, s->j.xp_atual, s->j.xp_max);
   mvprintw(s->l-1, s->c-10, "Floor %d", s->andar);
+  int aux=1;
+  for(int i=0; i<(s->andar)%10; i++){
+    if(s->bp[s->mobs[i].py][s->mobs[i].px].visivel==1 && s->mobs[i].inimigo.hp_atual > 0){
+      mvprintw(s->l-1, aux, "%s: %d/%d", s->mobs[i].inimigo.tipo, s->mobs[i].inimigo.hp_atual, s->mobs[i].inimigo.hp_max);
+      aux+=20;
+    }
+  }
 }
