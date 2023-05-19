@@ -7,15 +7,6 @@
 
 #include "action.h"
 
-int dice(int num, int faces){
-  srand(time(NULL));
-  int r=0;
-  for(int i=0; i<num; i++){
-    r += (rand() % faces)+1;
-  }
-  return r;
-}
-
 void update_visibility(struct state *s){
     for (int y = 1; y < s->l-1; y++) {
         for (int x = 1; x < s->c-1; x++) {
@@ -45,6 +36,58 @@ void update_visibility(struct state *s){
     }
 }
 
+void listar(struct state *s){
+  WINDOW *new = newwin(s->l, s->c, 0, 0);
+  box(new, 0, 0);
+  mvwprintw(new, 1, 1, "STATUS:");
+  mvwprintw(new, 2, 1, "ATK: %d\tDEF: %d", s->j.atk, s->j.def);
+  mvwprintw(new, 3, 1, "DMG: %dD%d\tARM: %d", s->j.dmg.n_dados, s->j.dmg.n_faces, s->j.arm);
+  mvwprintw(new, 5, 1, "INVENTARIO:");
+  int i=6;
+  struct Inventario *aux = s->inventario;
+  while (aux != NULL){
+    mvwprintw(new, i, 1, "%s(EQUIPADO):", aux->item.nome);
+    mvwprintw(new, i+1, 1, "\tDano:%dD%d", aux->item.dmg.n_dados, aux->item.dmg.n_faces);
+    mvwprintw(new, i+2, 1, "\tDefesa:+%d", aux->item.arm);
+    aux = aux->next;
+    i+=3;
+  }
+  free(aux);
+  i=1;
+  for(int j=0; j<(s->andar)%10; j++){
+    if(s->bp[s->mobs[j].py][s->mobs[j].px].visivel==1){
+      mvwprintw(new, i, (s->c)/2, "%s:", s->mobs[j].inimigo.tipo);
+      mvwprintw(new, i+1, (s->c)/2, "ATK: %d\tDEF: %d", s->mobs[j].inimigo.atk, s->mobs[j].inimigo.def);
+      mvwprintw(new, i+2, (s->c)/2, "DMG: %dD%d\tARM: %d", s->mobs[j].inimigo.dmg.n_dados, s->mobs[j].inimigo.dmg.n_faces, s->mobs[j].inimigo.arm);
+      i+=4;
+    }
+  }
+  wgetch(new);
+  endwin();
+}
+
+void reward(struct state *s){
+  int h;
+  srand(time(NULL));
+  int r = rand() % 3;
+  if (r==0) s->j.atk++;
+  else if (r==1) s->j.def++;
+  else {
+    h = dice(2, 20);
+    if(s->j.hp_atual + h > 100) s->j.hp_atual = 100;
+    else s->j.hp_atual += h;
+  }
+}
+
+int dice(int num, int faces){
+  srand(time(NULL));
+  int r=0;
+  for(int i=0; i<num; i++){
+    r += (rand() % faces)+1;
+  }
+  return r;
+}
+
 void mcombate(struct state *s, int index){
   int a, d, r;
   struct Inventario *aux = s->inventario;
@@ -68,14 +111,21 @@ void maction(struct state *s){
         mcombate(s, i);
       }
       else if (s->bp[s->mobs[i].py][s->mobs[i].px].visivel==1){
-        s->bp[s->mobs[i].py][s->mobs[i].px].c='.';
-        s->bp[s->mobs[i].py][s->mobs[i].px].cor=2;
-        s->bp[s->mobs[i].py][s->mobs[i].px].ocupado=0;
-        s->bp[s->mobs[i].py][s->mobs[i].px].parede=0;
+        char aux; int caux, yy, xx;
+        yy = s->mobs[i].py;
+        xx = s->mobs[i].px;
         if(dy > 0) s->mobs[i].py++;
         else if(dy < 0) s->mobs[i].py--;
         if(dx > 0) s->mobs[i].px++;
         else if(dx < 0) s->mobs[i].px--;
+        if (s->bp[yy][xx].saida==1){
+          aux='o'; caux=6;
+        }
+        else {aux='.'; caux=2;}
+        s->bp[yy][xx].c=aux;
+        s->bp[yy][xx].cor=caux;
+        s->bp[yy][xx].ocupado=0;
+        s->bp[yy][xx].parede=0;
         s->bp[s->mobs[i].py][s->mobs[i].px].c='X';
         s->bp[s->mobs[i].py][s->mobs[i].px].cor=5;
         s->bp[s->mobs[i].py][s->mobs[i].px].ocupado=1;
@@ -83,23 +133,6 @@ void maction(struct state *s){
       }
     }
   }
-}
-
-void listar(struct state *s){
-  WINDOW *new = newwin(s->l, s->c, 0, 0);
-  box(new, 0, 0);
-  int i=1;
-  struct Inventario *aux = s->inventario;
-  while (aux != NULL){
-    mvwprintw(new, i, 1, "%s:", aux->item.nome);
-    mvwprintw(new, i+1, 1, "\t+%dD%d de dano)", aux->item.dmg.n_dados, aux->item.dmg.n_faces);
-    mvwprintw(new, i+2, 1, "+%d", aux->item.arm);
-    aux = aux->next;
-    i++;
-  }
-  free(aux);
-  wgetch(new);
-  endwin();
 }
 
 void combate(struct state *s, int y, int x){
@@ -115,75 +148,123 @@ void combate(struct state *s, int y, int x){
       d = s->mobs[i].inimigo.def + dice(1, 20);
       if (a > d){
         r=dice(aux->item.dmg.n_dados, aux->item.dmg.n_faces);
-        if(r > s->mobs[i].inimigo.arm) s->mobs[i].inimigo.hp_atual -= (r-s->mobs[i].inimigo.arm); 
+        if(r > s->mobs[i].inimigo.arm) s->mobs[i].inimigo.hp_atual -= (r-s->mobs[i].inimigo.arm);
+        else{
+          warning = newwin(5, 30, ((s->l)/2)-2, ((s->c)/2)-15);
+          box(warning, 0, 0);
+          mvwprintw(warning, 2, 1, "O ataque não surgiu efeito.");
+          mvwprintw(warning, 3, 4, "O inimigo defendeu-se.");
+          wgetch(warning);
+          endwin();
+        }
       }
       else{
         warning = newwin(5, 30, ((s->l)/2)-2, ((s->c)/2)-15);
         box(warning, 0, 0);
-        mvwprintw(warning, 2, 3, ("O ataque falhou..."));
+        mvwprintw(warning, 2, 3, "O ataque falhou...");
         wgetch(warning);
         endwin();
       }
       if (s->mobs[i].inimigo.hp_atual <= 0){
         warning = newwin(5, 30, ((s->l)/2)-2, ((s->c)/2)-15);
         box(warning, 0, 0);
-        mvwprintw(warning, 2, 1, ("Você derrotou um inimigo!"));
+        mvwprintw(warning, 2, 2, "Você derrotou o inimigo.");
         wgetch(warning);
         endwin();
         s->bp[s->mobs[i].py][s->mobs[i].px].c = '.';
         s->bp[s->mobs[i].py][s->mobs[i].px].cor = 2;
         s->bp[s->mobs[i].py][s->mobs[i].px].ocupado = 0;
-        //reward(s);
+        s->j.xp_atual += 5;
+        if (s->j.xp_atual >= s->j.xp_max){
+          s->j.xp_atual -= s->j.xp_max;
+          s->j.xp_max += 5;
+          s->j.level++;
+          reward(s);
+        }
       }
     }
   }
 }
 
-void action(int *t, struct state *s){ 
+void action(int *t, struct state *s){
+  WINDOW *new;
+  int aux;
   s->bp[s->j.py][s->j.px].c='.'; s->bp[s->j.py][s->j.px].cor=2;
   switch (*t){
-    case 9:
-      s->andar+=100;
-      break;
     case 27:
+      new = newwin(7, 40, ((s->l)/2)-4, ((s->c)/2)-20);
+      box(new, 0, 0);
+      mvwprintw(new, 1, 3, "Certeza que desajas sair do jogo?");
+      mvwprintw(new, 2, 4, "O seu progresso não será salvo.");
+      mvwprintw(new, 3, 5, "(Aperte 'ESC' para confirmar)");
+      aux=wgetch(new);
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      if (aux==27) s->andar+=100;
+      break;
+    case 105:
       listar(s);
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
       break;
     case 56:
       if (s->bp[s->j.py-1][s->j.px].ocupado==1) combate(s, -1, 0);
       else if  (s->bp[s->j.py-1][s->j.px].parede==0) s->j.py--;
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     case 50:
-      if (s->bp[s->j.py+1][s->j.px].parede==1) combate(s, 1, 0);
+      if (s->bp[s->j.py+1][s->j.px].ocupado==1) combate(s, 1, 0);
       else if (s->bp[s->j.py+1][s->j.px].parede==0) s->j.py++;
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     case 52:
       if (s->bp[s->j.py][s->j.px-1].ocupado==1) combate(s, 0, -1);
       else if (s->bp[s->j.py][s->j.px-1].parede==0) s->j.px--;
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     case 54:
       if (s->bp[s->j.py][s->j.px+1].ocupado==1) combate(s, 0, 1);
       else if (s->bp[s->j.py][s->j.px+1].parede==0) s->j.px++;
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     case 55:
       if (s->bp[s->j.py-1][s->j.px-1].ocupado==1) combate(s, -1, -1);
       else if (s->bp[s->j.py-1][s->j.px-1].parede==0) {s->j.py--; s->j.px--;}
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     case 57:
       if (s->bp[s->j.py-1][s->j.px+1].ocupado==1) combate(s, -1, 1);
       else if (s->bp[s->j.py-1][s->j.px+1].parede==0) {s->j.py--; s->j.px++;}
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     case 49:
       if (s->bp[s->j.py+1][s->j.px-1].ocupado==1) combate(s, 1, -1);
       else if (s->bp[s->j.py+1][s->j.px-1].parede==0) {s->j.py++; s->j.px--;}
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     case 51:
       if (s->bp[s->j.py+1][s->j.px+1].ocupado==1) combate(s, 1, 1);
       else if (s->bp[s->j.py+1][s->j.px+1].parede==0) {s->j.py++; s->j.px++;}
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
     default:
+      s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
+      maction(s);
+      update_visibility(s);
       break;
   }
-  s->bp[s->j.py][s->j.px].c=s->j.c; s->bp[s->j.py][s->j.px].cor=4;
-  maction(s);
-  update_visibility(s);
 }
