@@ -14,6 +14,7 @@ void init_jogo(struct state *s, int lines, int cols){
   s->j.py=0;
   s->j.atk=5;
   s->j.def=5;
+  s->j.arm=0;
   s->j.c='@';
   s->andar=1;
   s->l=lines;
@@ -33,14 +34,14 @@ void init_jogo(struct state *s, int lines, int cols){
   strcpy(s->inventario->item.nome, "Espada simples");
   s->inventario->item.equipavel = 1; s->inventario->item.equipado = 1;
   s->inventario->item.dmg.n_dados = 2; s->inventario->item.dmg.n_faces = 6;
-  s->inventario->item.id=0; //s->j.dmg = s->inventario->item.dmg;
+  s->inventario->item.id=0; s->j.dmg = s->inventario->item.dmg;
   s->inventario->next = (struct Inventario *)malloc(sizeof(struct Inventario));
   strcpy(s->inventario->next->item.nome, "Escudo enferrujado");
   s->inventario->next->item.equipavel = 1; s->inventario->next->item.equipado = 1;
-  s->inventario->next->item.arm = 10;
-  s->inventario->next->item.id=1; //s->j.arm = s->inventario->next->item.arm;
+  s->inventario->next->item.arm = 10; s->j.arm += s->inventario->next->item.arm;
+  s->inventario->next->item.id=1; s->j.arm = s->inventario->next->item.arm;
   s->inventario->next->next = (struct Inventario *)malloc(sizeof(struct Inventario));
-  strcpy(s->inventario->next->next->item.nome, "Roupa gasta");
+  strcpy(s->inventario->next->next->item.nome, "Armadura velha");
   s->inventario->next->next->item.equipavel = 1; s->inventario->next->next->item.equipado = 1;
   s->inventario->next->next->next=NULL;
   
