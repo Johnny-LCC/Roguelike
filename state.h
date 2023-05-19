@@ -1,13 +1,19 @@
 #ifndef ___STATE_H___
 #define ___STATE_H___
+
 struct Casas{
   int parede;
   int ocupado;
   int visivel;
   int saida;
-  int drop;
+  //int drop;
   int cor;
   char c;
+};
+
+struct Dano{
+  int n_dados;
+  int n_faces;
 };
 
 struct Player{
@@ -18,14 +24,11 @@ struct Player{
   int xp_atual;
   int atk;
   int def;
+  struct Dano dmg;
+  int arm;
   int py;
   int px;
   char c;
-};
-
-struct Dano{
-  int n_dados;
-  int n_faces;
 };
 
 struct Item{
@@ -34,9 +37,10 @@ struct Item{
   int quantidade;
   int equipavel;
   int equipado;
+  int id;
   struct Dano dmg;
   int arm;
-  int hp;
+  int heal;
 };
 
 struct Inventario{
@@ -63,13 +67,13 @@ struct Mobs{
 struct state{
   struct Casas **bp;
   struct Player j;
-  struct Item drops[5];
+  struct Item drops[10];
   struct Inventario *inventario;
   struct Monstro monstro[10];
   struct Mobs mobs[10];
   int andar;
   int l;
-  int c;
-  
+  int c; 
 };
+
 #endif
