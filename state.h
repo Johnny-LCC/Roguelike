@@ -34,7 +34,6 @@ struct Player{
 struct Item{
   char nome[20];
   int consumivel;
-  int quantidade;
   int equipavel;
   int equipado;
   int id;
@@ -45,6 +44,7 @@ struct Item{
 
 struct Inventario{
   struct Item item;
+  int quantidade;
   struct Inventario *next;
 };
 
@@ -67,7 +67,7 @@ struct Mobs{
 struct state{
   struct Casas **bp;
   struct Player j;
-  struct Item drops[10];
+  //struct Item drops[10];
   struct Inventario *inventario;
   struct Monstro monstro[10];
   struct Mobs mobs[10];
