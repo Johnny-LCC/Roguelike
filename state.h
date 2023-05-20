@@ -40,6 +40,7 @@ struct Item{
   struct Dano dmg;
   int arm;
   int heal;
+  int arma;
 };
 
 struct Inventario{
