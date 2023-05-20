@@ -66,17 +66,71 @@ void listar(struct state *s){
   endwin();
 }
 
+void equipar(struct state *s, int itemID){
+  struct Inventario *aux = s->inventario;
+
+    while (aux != NULL) {
+    if (aux->item.id == itemID) {
+      aux->item.equipado = 1;  
+    } else {
+      if(aux->item.arma == 1) aux->item.equipado = 0; 
+    }
+    
+    aux = aux->next;
+  }
+}
+
+
+void update_Inventario(struct state *s, char* nome, int equipavel, int equipado, int dados, int faces, int id, int arma) {
+  struct Inventario *aux = s->inventario;
+  WINDOW *warning = NULL;
+
+  while (aux != NULL) {
+    if (strcmp (aux->item.nome, "Vazio") == 0) {
+      strcpy(aux->item.nome, nome);
+      aux->item.equipavel = equipavel;
+      aux->item.equipado = equipado;
+      aux->item.dmg.n_dados = dados;
+      aux->item.dmg.n_faces = faces;
+      aux->item.id = id;
+      aux->item.arma = arma;
+      mvwprintw(warning, 2, 1, "O enimigo carregava uma %s que foi adicionada ao inventário.", nome);
+      wgetch(warning);
+      endwin();
+      break;
+    }
+    aux = aux->next;
+  }
+  
+  mvwprintw(warning, 2, 1, "O enimigo carregava uma %s.\nInventário cheio. Não foi possível adicionar o item.", nome);
+  wgetch(warning);
+  endwin();
+}
+
 void reward(struct state *s){
   int h;
   srand(time(NULL));
-  int r = rand() % 3;
-  if (r==0) s->j.atk++;
-  else if (r==1) s->j.def++;
-  else {
+  int r = rand() % 10;
+  if (r==0 || r ==7) s->j.atk++;
+  else if (r==1 || r==8) s->j.def++;
+  else if (r==2 || r==9){
     h = dice(2, 20);
     if(s->j.hp_atual + h > 100) s->j.hp_atual = 100;
     else s->j.hp_atual += h;
+    
   }
+  else if (r==3) {
+     update_Inventario(s, "Motosserra", 1, 0, 3, 6, 2, 1);
+  }
+  else if (r==4) {
+    update_Inventario(s, "Acha", 1, 0, 1, 12, 3, 1);
+  }
+  else if (r==5) {
+      update_Inventario(s, "Adaga", 1, 0, 2, 4, 4, 1);
+  }
+  else if (r==6) {
+     update_Inventario(s, "Espada Longa", 1, 0, 2, 8, 5, 1);
+  } 
 }
 
 int dice(int num, int faces){
@@ -137,6 +191,8 @@ void maction(struct state *s){
 
 void combate(struct state *s, int y, int x){
   int a, d, r;
+  srand(time(NULL));
+  int v = rand() % 5;
   WINDOW *warning;
   struct Inventario *aux = s->inventario;
   while( aux!=NULL && aux->item.equipado!=1 && aux->item.id!=0){
@@ -174,7 +230,8 @@ void combate(struct state *s, int y, int x){
         s->bp[s->mobs[i].py][s->mobs[i].px].c = '.';
         s->bp[s->mobs[i].py][s->mobs[i].px].cor = 2;
         s->bp[s->mobs[i].py][s->mobs[i].px].ocupado = 0;
-        s->j.xp_atual += 5;
+        if(v == 0) s->j.xp_atual += 5;
+         else reward(s);
         if (s->j.xp_atual >= s->j.xp_max){
           s->j.xp_atual -= s->j.xp_max;
           s->j.xp_max += 5;
