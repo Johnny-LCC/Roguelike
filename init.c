@@ -35,15 +35,43 @@ void init_jogo(struct state *s, int lines, int cols){
   s->inventario->item.equipavel = 1; s->inventario->item.equipado = 1;
   s->inventario->item.dmg.n_dados = 2; s->inventario->item.dmg.n_faces = 6;
   s->inventario->item.id=0; s->j.dmg = s->inventario->item.dmg;
+  s->inventario->item.arma=1;
   s->inventario->next = (struct Inventario *)malloc(sizeof(struct Inventario));
   strcpy(s->inventario->next->item.nome, "Escudo enferrujado");
   s->inventario->next->item.equipavel = 1; s->inventario->next->item.equipado = 1;
   s->inventario->next->item.arm = 10; s->j.arm += s->inventario->next->item.arm;
   s->inventario->next->item.id=1; s->j.arm = s->inventario->next->item.arm;
+  s->inventario->next->item.arma=0;
   s->inventario->next->next = (struct Inventario *)malloc(sizeof(struct Inventario));
   strcpy(s->inventario->next->next->item.nome, "Armadura velha");
   s->inventario->next->next->item.equipavel = 1; s->inventario->next->next->item.equipado = 1;
-  s->inventario->next->next->next=NULL;
+  s->inventario->next->next->item.arma=0;
+  s->inventario->next->next->next = (struct Inventario *)malloc(sizeof(struct Inventario));
+  strcpy(s->inventario->next->next->next->item.nome, "Vazio");                                                  
+  s->inventario->next->next->next->item.equipavel = 0; s->inventario->next->next->next->item.equipado = 0;
+  s->inventario->next->next->next->item.dmg.n_dados = 0; s->inventario->next->next->next->item.dmg.n_faces = 0;
+  s->inventario->next->next->next->item.id=0; s->j.dmg = s->inventario->next->next->next->item.dmg;
+  s->inventario->next->next->next->item.arma=0;
+  s->inventario->next->next->next->next = (struct Inventario *)malloc(sizeof(struct Inventario));
+  strcpy(s->inventario->next->next->next->next->item.nome, "Vazio");
+  s->inventario->next->next->next->next->item.equipavel = 0; s->inventario->next->next->next->next->item.equipado = 0;
+  s->inventario->next->next->next->next->item.dmg.n_dados = 0; s->inventario->next->next->next->next->item.dmg.n_faces = 0;
+  s->inventario->next->next->next->next->item.id=0; s->j.dmg = s->inventario->next->next->next->next->item.dmg;
+  s->inventario->next->next->next->next->item.arma=0;
+  s->inventario->next->next->next->next->next = (struct Inventario *)malloc(sizeof(struct Inventario));
+  strcpy(s->inventario->next->next->next->next->next->item.nome, "Vazio");
+  s->inventario->next->next->next->next->next->item.equipavel = 0; s->inventario->next->next->next->next->next->item.equipado = 0;
+  s->inventario->next->next->next->next->next->item.dmg.n_dados = 0; s->inventario->next->next->next->next->next->item.dmg.n_faces = 0;
+  s->inventario->next->next->next->next->next->item.id=0; s->j.dmg = s->inventario->next->next->next->next->next->item.dmg;
+  s->inventario->next->next->next->next->next->item.arma=0;  
+  s->inventario->next->next->next->next->next->next = (struct Inventario *)malloc(sizeof(struct Inventario));
+  strcpy(s->inventario->next->next->next->next->next->next->item.nome, "Vazio");
+  s->inventario->next->next->next->next->next->next->item.equipavel = 0; s->inventario->next->next->next->next->next->next->item.equipado = 0;
+  s->inventario->next->next->next->next->next->next->item.dmg.n_dados = 0; s->inventario->next->next->next->next->next->next->item.dmg.n_faces = 0;
+  s->inventario->next->next->next->next->next->next->item.id=0; s->j.dmg = s->inventario->next->next->next->next->next->next->item.dmg;
+  s->inventario->next->next->next->next->next->next->item.arma=0;
+  s->inventario->next->next->next->next->next->next=NULL; 
+
   
   //monstros
   strcpy(s->monstro[0].tipo, "slime");
