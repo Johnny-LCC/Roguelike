@@ -5,6 +5,8 @@
 
 void update_visibility(struct state *s);
 void listar(struct state *s);
+void equipar(struct state *s, int itemID);
+void update_Inventario(struct state *s, char* nome, int equipavel, int equipado, int dados, int faces, int id, int arma);
 void reward(struct state *s);
 int dice(int num, int faces);
 void mcombate(struct state *s, int index);
