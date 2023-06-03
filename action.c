@@ -269,7 +269,7 @@ void calculate_fov(Point jogador, int raio_max, int fov_angulo, int** mapa_jogo,
     printf("Direção (em graus): ");
     scanf("%d", &player_direction);
     
-    Point player = { coord_x, coord_y };
+    
 
      for (int x = 0; x < comp_mapa ; x++) {
         for (int y = 0; y < altura_mapa ; y++) {
