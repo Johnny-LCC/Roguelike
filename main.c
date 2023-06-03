@@ -28,8 +28,8 @@ int main(){
   keypad(stdscr, 1);
   noecho();
   curs_set(0);
-  init_jogo(&s, LINES, COLS);
   do{
+    init_jogo(&s, LINES, COLS);
     clear();
     menu(LINES, COLS);
     t=getch();
