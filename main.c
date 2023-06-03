@@ -48,7 +48,7 @@ int main(){
             action(&a, &s);
             print_map(&s);
             if(s.bp[s.j.py][s.j.px].saida==1) aux++;
-          } while (aux==s.andar && s.j.hp_atual!=0);
+          } while (aux==s.andar && s.j.hp_atual>0);
           s.andar++;
         }
         clear();
