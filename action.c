@@ -243,6 +243,53 @@ void combate(struct state *s, int y, int x){
   }
 }
 
+typedef struct {
+    int x;
+    int y;
+    int direction; 
+} Point;
+
+int calcular_distancia(Point i, Point f) {  
+    int dx = f.x - i.x; 
+    int dy = f.y - i.y;
+    return sqrt(dx * dx + dy * dy); 
+}
+
+int calcular_angulo(Point i, Point f) { 
+    return atan2(f.x - i.x, f.y - i.y) * 180 / M_PI; 
+}               
+void calculate_fov(Point jogador, int raio_max, int fov_angulo, int** mapa_jogo, int comp_mapa , int altura_mapa)  {
+    
+    int coord_x, coord_y, player_direction;
+    printf("Digite a posição do jogador:\n");
+    printf("Coordenada X: ");
+    scanf("%d", &coord_x);
+    printf("Coordenada Y: ");
+    scanf("%d", &coord_y);
+    printf("Direção (em graus): ");
+    scanf("%d", &player_direction);
+    
+    Point player = { coord_x, coord_y };
+
+     for (int x = 0; x < comp_mapa ; x++) {
+        for (int y = 0; y < altura_mapa ; y++) {
+            Point cel = { x, y };
+            int distancia = calcular_distancia(jogador, cel);
+            
+            if (distancia<= raio_max) {
+                int angulo = calcular_angulo(jogador, cel);
+                int angulo_dif = abs(angulo - jogador.direction); 
+                
+                if (angulo_dif <= fov_angulo / 2) {
+                    mapa_jogo[x][y] = 1;  
+                }
+            }
+        }
+    }
+}
+
+
+
 void action(int *t, struct state *s){
   WINDOW *new;
   int aux;
