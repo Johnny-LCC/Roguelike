@@ -83,54 +83,31 @@ void equipar(struct state *s, int itemID){
 
 void update_Inventario(struct state *s, char* nome, int equipavel, int equipado, int dados, int faces, int id, int arma) {
   struct Inventario *aux = s->inventario;
-  WINDOW *warning = NULL;
+  WINDOW *warning;
 
   while (aux != NULL) {
-    if (strcmp (aux->item.nome, "Vazio") == 0) {
-      strcpy(aux->item.nome, nome);
-      aux->item.equipavel = equipavel;
-      aux->item.equipado = equipado;
-      aux->item.dmg.n_dados = dados;
-      aux->item.dmg.n_faces = faces;
-      aux->item.id = id;
-      aux->item.arma = arma;
-      mvwprintw(warning, 2, 1, "O enimigo carregava uma %s que foi adicionada ao inventário.", nome);
+    if (strcmp(aux->item.nome, nome) == 0){
+      aux->quantidade++;
+      break;
+    }
+    else if (aux->next == NULL) {
+      aux->next = (struct Inventario *)malloc(sizeof(struct Inventario));
+      strcpy(aux->next->item.nome, nome);
+      aux->next->item.equipavel = equipavel;
+      aux->next->item.equipado = equipado;
+      aux->next->item.dmg.n_dados = dados;
+      aux->next->item.dmg.n_faces = faces;
+      aux->next->item.id = id;
+      aux->next->item.arma = arma;
+      warning = newwin(5, 30, ((s->l)/2)-2, ((s->c)/2)-15);
+      box(warning, 0, 0);
+      mvwprintw(warning, 2, 1, "Encontrou uma %s", nome);
       wgetch(warning);
       endwin();
       break;
     }
     aux = aux->next;
   }
-  
-  mvwprintw(warning, 2, 1, "O enimigo carregava uma %s.\nInventário cheio. Não foi possível adicionar o item.", nome);
-  wgetch(warning);
-  endwin();
-}
-
-void reward(struct state *s){
-  int h;
-  srand(time(NULL));
-  int r = rand() % 10;
-  if (r==0 || r ==7) s->j.atk++;
-  else if (r==1 || r==8) s->j.def++;
-  else if (r==2 || r==9){
-    h = dice(2, 20);
-    if(s->j.hp_atual + h > 100) s->j.hp_atual = 100;
-    else s->j.hp_atual += h;
-    
-  }
-  else if (r==3) {
-     update_Inventario(s, "Motosserra", 1, 0, 3, 6, 2, 1);
-  }
-  else if (r==4) {
-    update_Inventario(s, "Acha", 1, 0, 1, 12, 3, 1);
-  }
-  else if (r==5) {
-      update_Inventario(s, "Adaga", 1, 0, 2, 4, 4, 1);
-  }
-  else if (r==6) {
-     update_Inventario(s, "Espada Longa", 1, 0, 2, 8, 5, 1);
-  } 
 }
 
 int dice(int num, int faces){
@@ -140,6 +117,36 @@ int dice(int num, int faces){
     r += (rand() % faces)+1;
   }
   return r;
+}
+
+void drop(struct state *s){
+  srand(time(NULL));
+  int r = rand() % 10;
+  if (r==3) {
+     update_Inventario(s, "Motosserra", 1, 0, 3, 6, 1, 1);
+  }
+  else if (r==4) {
+    update_Inventario(s, "Acha", 1, 0, 1, 12, 1, 1);
+  }
+  else if (r==5) {
+      update_Inventario(s, "Adaga", 1, 0, 2, 4, 1, 1);
+  }
+  else if (r==6) {
+     update_Inventario(s, "Espada Longa", 1, 0, 2, 8, 1, 1);
+  } 
+}
+
+void reward(struct state *s){
+  int h;
+  srand(time(NULL));
+  int r = rand() % 3;
+  if (r==0) s->j.atk++;
+  else if (r==1) s->j.def++;
+  else {
+    h = dice(2, 20);
+    if(s->j.hp_atual + h > 100) s->j.hp_atual = 100;
+    else s->j.hp_atual += h;
+  }
 }
 
 void mcombate(struct state *s, int index){
@@ -230,8 +237,8 @@ void combate(struct state *s, int y, int x){
         s->bp[s->mobs[i].py][s->mobs[i].px].c = '.';
         s->bp[s->mobs[i].py][s->mobs[i].px].cor = 2;
         s->bp[s->mobs[i].py][s->mobs[i].px].ocupado = 0;
-        if(v == 0) s->j.xp_atual += 5;
-         else reward(s);
+        s->j.xp_atual += 5;
+        drop(s);
         if (s->j.xp_atual >= s->j.xp_max){
           s->j.xp_atual -= s->j.xp_max;
           s->j.xp_max += 5;
