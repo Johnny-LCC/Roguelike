@@ -104,6 +104,8 @@ void generate_map(struct state *s){
     }while(s->bp[s->mobs[i].py][s->mobs[i].px].parede==1 || s->bp[s->mobs[i].py][s->mobs[i].px].saida==1 || s->bp[s->mobs[i].py][s->mobs[i].px].c=='@');
     s->bp[s->mobs[i].py][s->mobs[i].px].c='X'; s->bp[s->mobs[i].py][s->mobs[i].px].cor=5; s->bp[s->mobs[i].py][s->mobs[i].px].ocupado=1; 
   }
+   generate_treasure(s, &t);  // esta funciona
+   check_treasure_collision(s, &t);  // esta nao funciona
 }
 
 void print_map(struct state *s){
