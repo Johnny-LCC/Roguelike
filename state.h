@@ -65,11 +65,7 @@ struct Mobs{
   struct Monstro inimigo;
 };
 
-struct Tesouro { // ty e tx sendo as cordenadas e c o caracter do tesouro(alma)
-  int ty;
-  int tx;
-  char c;
-};
+
 
 struct state{
   struct Casas **bp;
