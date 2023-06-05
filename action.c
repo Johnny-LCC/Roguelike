@@ -199,7 +199,6 @@ void maction(struct state *s){
 void combate(struct state *s, int y, int x){
   int a, d, r;
   srand(time(NULL));
-  //int v = rand() % 5;
   WINDOW *warning;
   struct Inventario *aux = s->inventario;
   while( aux!=NULL && aux->item.equipado!=1 && aux->item.id!=0){
