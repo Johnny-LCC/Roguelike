@@ -65,8 +65,6 @@ struct Mobs{
   struct Monstro inimigo;
 };
 
-
-
 struct state{
   struct Casas **bp;
   struct Player j;
